@@ -1,4 +1,6 @@
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class AStarSearch implements SearchAlgorithm {
 
@@ -33,7 +35,7 @@ public class AStarSearch implements SearchAlgorithm {
 		frontierList.add(currentNode);
 
 		//find best solution
-		while (!foundSolution){
+		//while (!foundSolution){
 			//keep searching
 			//keep expanding nodes
 			// if a state is already in the hash map (duplicate) then DONT expand that node
@@ -49,7 +51,7 @@ public class AStarSearch implements SearchAlgorithm {
 			//3. check if maxFrontierSize is not larger, if so update
 
 			//chack lab 2 to see how states/nodes are stored in hashmap
-		}
+		//}
 		
 	}
 
@@ -70,7 +72,7 @@ public class AStarSearch implements SearchAlgorithm {
 		//update the frontier, both remove current node and add the new ones
 	}
 
-	private boolean checkIfStateExistsIfSoAddIt(state s) {
+	private boolean checkIfStateExistsIfSoAddIt(State s) {
 		//check if we already have this state inside the hash map
 
 		//if not then add it
