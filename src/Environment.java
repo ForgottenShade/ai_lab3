@@ -155,28 +155,47 @@ public class Environment {
 		}
 
 		else if (a.equals(Action.SUCK)){
-			//s.dirt.size() -= 1;
-			return true;
+			if(s.dirt.contains(s.position)){
+				s.dirt.remove(s.position);
+			}
+			return s;
 		}
 
 		else if (a.equals(Action.TURN_LEFT)){
-			return true;
+			if(s.orientation == 0){
+				s.orientation = 3;
+			}else{
+				s.orientation -= 1;
+			}
+			return s;
 		}
 
 		else if (a.equals(Action.TURN_RIGHT)){
-			return true;
+			if(s.orientation == 3){
+				s.orientation = 1;
+			}else{
+				s.orientation += 1;
+			}
+			return s;
 		}
 
 		else if (a.equals(Action.TURN_ON)){
-			return true;
+			if(!s.turned_on){
+				s.turned_on = true;
+			}
+			return s;
 		}
 
 		else if (a.equals(Action.TURN_OFF)){
-			return true;
+			if(s.turned_on){
+				s.turned_on = false;
+			}
+			return s;
 		}
 
 		else{
-			return true;
+			System.out.println("Failed to interpret command.");
+			return s;
 		}
 
 		// System.out.println("move: " + a + " -> next state: " + succState);
