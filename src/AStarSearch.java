@@ -37,9 +37,9 @@ public class AStarSearch implements SearchAlgorithm {
 		//find best solution
 		while (!foundSolution){
 			
-			expandNode(currentNode, env);
+			// expandNode(currentNode, env);
 
-			findBestNodeInFrontier(frontierList);
+			// findBestNodeInFrontier(frontierList);
 			
 			// // ##############
 			// //keep searching
@@ -55,11 +55,11 @@ public class AStarSearch implements SearchAlgorithm {
 			// //and all dirt is cleaned and you are turned off
 			// //we can also use the eval function, and check there if all dirt has been cleaned
 			
-			// //1. find node to expand
-
-			// //2. expand it
-
-			// //3. check if maxFrontierSize is not larger, if so update
+			//1. find node to expand
+			Node pathNode = findBestNodeInFrontier();
+			//2. expand it
+			expandNode(pathNode, env);
+			//3. check if maxFrontierSize is not larger, if so update
 
 			// //chack lab 2 to see how states/nodes are stored in hashmap
 
@@ -68,19 +68,41 @@ public class AStarSearch implements SearchAlgorithm {
 		}
 	}
 
-	private Node findBestNodeInFrontier(ArrayList<Node> frontierList){
-		// if frontireList is not empty or null then iterate through it and find best evaluation
-		if (!frontierList.isEmpty() && frontierList != null ){
-			Node cheapestNode = frontierList.get(0);
-			for (int i = 0; i < frontierList.size(); i++){
-				if (frontierList.get(i).evaluation < cheapestNode.evaluation){
-					cheapestNode = frontierList.get(i);
-				}
-			}
-			return cheapestNode;
-		}
+	// private Node findBestNodeInFrontier(ArrayList<Node> frontierList){
+	// 	// if frontireList is not empty or null then iterate through it and find best evaluation
+	// 	if (!frontierList.isEmpty() && frontierList != null ){
+	// 		Node cheapestNode = frontierList.get(0);
+	// 		for (int i = 0; i < frontierList.size(); i++){
+	// 			if (frontierList.get(i).evaluation < cheapestNode.evaluation){
+	// 				cheapestNode = frontierList.get(i);
+	// 			}
+	// 		}
+	// 		return cheapestNode;
+	// 	}
 		
-		return null;
+	// 	return null;
+	// }
+	
+	private Node findBestNodeInFrontier(){
+		//check if null or empty for example
+		//iterate through the frontier list and find best evaluation (lowest value)
+		Node bestNode = null;
+		int bestNodeVal = -1;
+		Iterator<Node> fList = frontierList.iterator();
+
+		while(fList.hasNext()){
+			Node nextNode = fList.next();
+			//catch for initial value
+			if(bestNodeVal == -1){
+				bestNodeVal = nextNode.evaluation;
+				bestNode = nextNode;
+			}
+			//evaluate node
+			if(nextNode.evaluation < bestNodeVal){
+				bestNode = nextNode;
+			}
+		}
+		return bestNode;
 	}
 
 	private void expandNode(Node n, Environment env){
