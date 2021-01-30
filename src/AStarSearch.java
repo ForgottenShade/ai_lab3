@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class AStarSearch implements SearchAlgorithm {
 
 	private Heuristics heuristics;
-	private HashMap<Integer, ArrayList<State>> myHashMap;
+	private HashMap<Integer, State > myHashMap;
 	public AStarSearch(Heuristics h) {
 		this.heuristics = h;
 	}
@@ -30,108 +30,206 @@ public class AStarSearch implements SearchAlgorithm {
 		Node solutionNode = null;
 		frontierList = new ArrayList<Node>();
 	
-
 		//be careful here because we can't use max value at other places?
 		Node currentNode = new Node(env.getCurrentState(), Integer.MAX_VALUE);
 		frontierList.add(currentNode);
 
 		//find best solution
 		while (!foundSolution){
-			//keep searching
-
-			//keep expanding nodes
-			Iterator<Node> fList = frontierList.iterator();
-			while(fList.hasNext()){
-				expandNode(fList.next(), env);
-			}
-			// if a state is already in the hash map (duplicate) then DONT expand that node
-
-			//to detect that the current solution is in a goal state, we can check if the state = home 
-			//and all dirt is cleaned and you are turned off
-			//we can also use the eval function, and check there if all dirt has been cleaned
 			
-			//1. find node to expand
+			expandNode(currentNode, env);
 
-			//2. expand it
+			findBestNodeInFrontier(frontierList);
+			
+			// // ##############
+			// //keep searching
 
-			//3. check if maxFrontierSize is not larger, if so update
+			// //keep expanding nodes
+			// Iterator<Node> fList = frontierList.iterator();
+			// while(fList.hasNext()){
+			// 	expandNode(fList.next(), env);
+			// }
+			// // if a state is already in the hash map (duplicate) then DONT expand that node
 
-			//chack lab 2 to see how states/nodes are stored in hashmap
+			// //to detect that the current solution is in a goal state, we can check if the state = home 
+			// //and all dirt is cleaned and you are turned off
+			// //we can also use the eval function, and check there if all dirt has been cleaned
+			
+			// //1. find node to expand
+
+			// //2. expand it
+
+			// //3. check if maxFrontierSize is not larger, if so update
+
+			// //chack lab 2 to see how states/nodes are stored in hashmap
+
+			// //  #### Probably crap ####
+			// // #################
 		}
-		
 	}
 
-	private Node findBestNodeInFrontier(){
-		//check if null or empty for example
-		//iterate through the frontier list and find best evaluation
+	private Node findBestNodeInFrontier(ArrayList<Node> frontierList){
+		// if frontireList is not empty or null then iterate through it and find best evaluation
+		if (!frontierList.isEmpty() && frontierList != null ){
+			Node cheapestNode = frontierList.get(0);
+			for (int i = 0; i < frontierList.size(); i++){
+				if (frontierList.get(i).evaluation < cheapestNode.evaluation){
+					cheapestNode = frontierList.get(i);
+				}
+			}
+			return cheapestNode;
+		}
+		
 		return null;
 	}
 
 	private void expandNode(Node n, Environment env){
-		//check if null
-		
-		//expand it for each move you can do
+		// ##############
+		// make clone of state
 		State s = n.state;
-		Node northNode;
-		Node eastNode;
-		Node southNode;
-		Node westNode;
-		//get position of neighbors, if not obstacles, create a node, add to frontier
-		//need to do checks to determine cost of movement from start orientation
+		
+		List<Action> legalMoves = env.legalMoves(n.state);
+		Node newNode = null;
 
-		//north
-		s.position.y += 1;
-		if(!env.obstacles.contains(s.position)){
-			State northClone = s.clone();
-			northNode = new Node(northClone, heuristics.eval(northClone));
-			northNode.parent = n;
-			frontierList.add(northNode);
+		for (int i = 0; i < legalMoves.size(); i++){
+			// reset clone to current state
+			State sClone = s.clone();
+			
+
+			if (legalMoves.get(i) == Action.GO){
+				// get next location 
+				sClone.position = sClone.facingPosition();
+
+				// clone the next state with the correct coordinates
+				newNode = new Node(n, sClone, Action.GO, heuristics.eval(sClone));
+			
+				// add node to frontierList, if not in hashmap
+				if (!checkStateHashAndAdd(sClone)){
+					frontierList.add(newNode);
+				}
+			}
+
+			else if (legalMoves.get(i) == Action.TURN_LEFT){
+				if (sClone.orientation == 0){
+					sClone.orientation = 3;
+				}
+				else {
+					sClone.orientation -= 1;
+				}
+
+				newNode = new Node(n, sClone, Action.TURN_LEFT, heuristics.eval(sClone));
+				
+				if (!checkStateHashAndAdd(sClone)){
+					frontierList.add(newNode);
+				}	
+			}
+
+			else if (legalMoves.get(i) == Action.TURN_RIGHT){
+				if (sClone.orientation == 3){
+					sClone.orientation = 0;
+				}
+				else {
+					sClone.orientation += 1;
+				}
+
+				newNode = new Node(n, sClone, Action.TURN_RIGHT, heuristics.eval(sClone));
+				
+				if (!checkStateHashAndAdd(sClone)){
+					frontierList.add(newNode);
+				}
+			}
+
+			else if (legalMoves.get(i) == Action.SUCK){
+				sClone.dirt.remove(sClone.position);
+
+				newNode = new Node(n, sClone, Action.SUCK, heuristics.eval(sClone));
+				
+			}	
+			
+			if (!checkStateHashAndAdd(sClone) && newNode != null){
+				frontierList.add(newNode);
+			}
+			else if (newNode == null){
+				System.out.println("expandNode : newNode is null");
+			}
+			else if (checkStateHashAndAdd(sClone)){
+				System.out.println("expandNode : state is already in hashmap");
+			}
 		}
-
-		//east
-		s.position.y -= 1;
-		s.position.x += 1;
-		if(!env.obstacles.contains(s.position)){
-			State eastClone = s.clone();
-			eastNode = new Node(eastClone, heuristics.eval(eastClone));
-			eastNode.parent = n;
-			frontierList.add(eastNode);
-		}
-
-		//south
-		s.position.x -= 1;
-		s.position.y -= 1;
-		if(!env.obstacles.contains(s.position)){
-			State southClone = s.clone();
-			southNode = new Node(southClone, heuristics.eval(southClone));
-			southNode.parent = n;
-			frontierList.add(southNode);
-		}
-
-		//west
-		s.position.y += 1;
-		s.position.x -= 1;
-		if(!env.obstacles.contains(s.position)){
-			State westClone = s.clone();
-			westNode = new Node(westClone, heuristics.eval(westClone));
-			westNode.parent = n;
-			frontierList.add(westNode);
-		}
-
-		//check if the new state already exists
-		checkIfStateExistsIfSoAddIt(n.state);
-
 		//update the frontier, both remove current node and add the new ones
 		frontierList.remove(n);
+		// ###############
+
+		// // ##################
+
+		// //check if null
+		
+		// //expand it for each move you can do
+		// State s = n.state;
+		// Node northNode;
+		// Node eastNode;
+		// Node southNode;
+		// Node westNode;
+		// //get position of neighbors, if not obstacles, create a node, add to frontier
+		// //need to do checks to determine cost of movement from start orientation
+
+		// //north
+		// s.position.y += 1;
+		// if(!env.obstacles.contains(s.position)){
+		// 	State northClone = s.clone();
+		// 	northNode = new Node(northClone, heuristics.eval(northClone));
+		// 	northNode.parent = n;
+		// 	frontierList.add(northNode);
+		// }
+
+		// //east
+		// s.position.y -= 1;
+		// s.position.x += 1;
+		// if(!env.obstacles.contains(s.position)){
+		// 	State eastClone = s.clone();
+		// 	eastNode = new Node(eastClone, heuristics.eval(eastClone));
+		// 	eastNode.parent = n;
+		// 	frontierList.add(eastNode);
+		// }
+
+		// //south
+		// s.position.x -= 1;
+		// s.position.y -= 1;
+		// if(!env.obstacles.contains(s.position)){
+		// 	State southClone = s.clone();
+		// 	southNode = new Node(southClone, heuristics.eval(southClone));
+		// 	southNode.parent = n;
+		// 	frontierList.add(southNode);
+		// }
+
+		// //west
+		// s.position.y += 1;
+		// s.position.x -= 1;
+		// if(!env.obstacles.contains(s.position)){
+		// 	State westClone = s.clone();
+		// 	westNode = new Node(westClone, heuristics.eval(westClone));
+		// 	westNode.parent = n;
+		// 	frontierList.add(westNode);
+		// }
+
+		// //check if the new state already exists
+		// checkIfStateExistsIfSoAddIt(n.state);
+
+		// //update the frontier, both remove current node and add the new ones
+		// frontierList.remove(n);
+		// // #################
 	}
 
-	private boolean checkIfStateExistsIfSoAddIt(State s) {
+	private boolean checkStateHashAndAdd(State s) {
 		//check if we already have this state inside the hash map
 
-		//if not then add it
+		if (!myHashMap.containsKey(s.hashCode())){
+			//if not then add it
+			myHashMap.put(s.hashCode(), s);
 
-		//if so we do not add it
-		return false;
+			return false;
+		}
+		return true;
 	}
 
 	@Override
