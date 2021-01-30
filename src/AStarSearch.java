@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,57 +38,12 @@ public class AStarSearch implements SearchAlgorithm {
 		//find best solution
 		while (!foundSolution){
 			//keep searching
-			State s = env.currentState.clone();
-			Node northNode;
-			Node eastNode;
-			Node southNode;
-			Node westNode;
-			//get position of neighbors, if not obstacles, create a node, add to frontier
-			//need to do checks to determine cost of movement from start orientation
-
-			//north
-			s.position.y += 1;
-			if(!env.obstacles.contains(s.position)){
-				State northClone = s.clone();
-				northNode = new Node(northClone, heuristics.eval(northClone));
-				northNode.parent = currentNode;
-				frontierList.add(northNode);
-			}
-
-			//east
-			s.position.y -= 1;
-			s.position.x += 1;
-			if(!env.obstacles.contains(s.position)){
-				State eastClone = s.clone();
-				eastNode = new Node(eastClone, heuristics.eval(eastClone));
-				eastNode.parent = currentNode;
-				frontierList.add(eastNode);
-			}
-
-			//south
-			s.position.x -= 1;
-			s.position.y -= 1;
-			if(!env.obstacles.contains(s.position)){
-				State southClone = s.clone();
-				southNode = new Node(southClone, heuristics.eval(southClone));
-				southNode.parent = currentNode;
-				frontierList.add(southNode);
-			}
-
-			//west
-			s.position.y += 1;
-			s.position.x -= 1;
-			if(!env.obstacles.contains(s.position)){
-				State westClone = s.clone();
-				westNode = new Node(westClone, heuristics.eval(westClone));
-				westNode.parent = currentNode;
-				frontierList.add(westNode);
-			}
-
-			s = env.currentState;
-
 
 			//keep expanding nodes
+			Iterator<Node> fList = frontierList.iterator();
+			while(fList.hasNext()){
+				expandNode(fList.next(), env);
+			}
 			// if a state is already in the hash map (duplicate) then DONT expand that node
 
 			//to detect that the current solution is in a goal state, we can check if the state = home 
@@ -111,15 +67,62 @@ public class AStarSearch implements SearchAlgorithm {
 		return null;
 	}
 
-	private void expandNode(Node n){
+	private void expandNode(Node n, Environment env){
 		//check if null
 		
-		//expand it for each move you can do 	
+		//expand it for each move you can do
+		State s = n.state;
+		Node northNode;
+		Node eastNode;
+		Node southNode;
+		Node westNode;
+		//get position of neighbors, if not obstacles, create a node, add to frontier
+		//need to do checks to determine cost of movement from start orientation
+
+		//north
+		s.position.y += 1;
+		if(!env.obstacles.contains(s.position)){
+			State northClone = s.clone();
+			northNode = new Node(northClone, heuristics.eval(northClone));
+			northNode.parent = n;
+			frontierList.add(northNode);
+		}
+
+		//east
+		s.position.y -= 1;
+		s.position.x += 1;
+		if(!env.obstacles.contains(s.position)){
+			State eastClone = s.clone();
+			eastNode = new Node(eastClone, heuristics.eval(eastClone));
+			eastNode.parent = n;
+			frontierList.add(eastNode);
+		}
+
+		//south
+		s.position.x -= 1;
+		s.position.y -= 1;
+		if(!env.obstacles.contains(s.position)){
+			State southClone = s.clone();
+			southNode = new Node(southClone, heuristics.eval(southClone));
+			southNode.parent = n;
+			frontierList.add(southNode);
+		}
+
+		//west
+		s.position.y += 1;
+		s.position.x -= 1;
+		if(!env.obstacles.contains(s.position)){
+			State westClone = s.clone();
+			westNode = new Node(westClone, heuristics.eval(westClone));
+			westNode.parent = n;
+			frontierList.add(westNode);
+		}
 
 		//check if the new state already exists
 		checkIfStateExistsIfSoAddIt(n.state);
 
 		//update the frontier, both remove current node and add the new ones
+		frontierList.remove(n);
 	}
 
 	private boolean checkIfStateExistsIfSoAddIt(State s) {
