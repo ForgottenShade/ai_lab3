@@ -111,12 +111,12 @@ public class AStarSearch implements SearchAlgorithm {
 		State s = n.state;
 		
 		List<Action> legalMoves = env.legalMoves(n.state);
-		Node newNode = null;
-
+		
 		for (int i = 0; i < legalMoves.size(); i++){
 			// reset clone to current state
 			State sClone = s.clone();
-			
+			Node newNode = null;
+
 
 			if (legalMoves.get(i) == Action.GO){
 				// get next location 
