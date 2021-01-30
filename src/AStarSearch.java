@@ -48,7 +48,9 @@ public class AStarSearch implements SearchAlgorithm {
 			//north
 			s.position.y += 1;
 			if(!env.obstacles.contains(s.position)){
-				northNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				State northClone = s.clone();
+				northNode = new Node(northClone, heuristics.eval(northClone));
+				northNode.parent = currentNode;
 				frontierList.add(northNode);
 			}
 
@@ -56,7 +58,9 @@ public class AStarSearch implements SearchAlgorithm {
 			s.position.y -= 1;
 			s.position.x += 1;
 			if(!env.obstacles.contains(s.position)){
-				eastNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				State eastClone = s.clone();
+				eastNode = new Node(eastClone, heuristics.eval(eastClone));
+				eastNode.parent = currentNode;
 				frontierList.add(eastNode);
 			}
 
@@ -64,7 +68,9 @@ public class AStarSearch implements SearchAlgorithm {
 			s.position.x -= 1;
 			s.position.y -= 1;
 			if(!env.obstacles.contains(s.position)){
-				southNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				State southClone = s.clone();
+				southNode = new Node(southClone, heuristics.eval(southClone));
+				southNode.parent = currentNode;
 				frontierList.add(southNode);
 			}
 
@@ -72,11 +78,12 @@ public class AStarSearch implements SearchAlgorithm {
 			s.position.y += 1;
 			s.position.x -= 1;
 			if(!env.obstacles.contains(s.position)){
-				westNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				State westClone = s.clone();
+				westNode = new Node(westClone, heuristics.eval(westClone));
+				westNode.parent = currentNode;
 				frontierList.add(westNode);
 			}
 
-			s.position.x += 1;
 			s = env.currentState;
 
 
