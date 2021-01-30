@@ -44,6 +44,7 @@ public class AStarSearch implements SearchAlgorithm {
 			while(fList.hasNext()){
 				expandNode(fList.next(), env);
 			}
+
 			// if a state is already in the hash map (duplicate) then DONT expand that node
 
 			//to detect that the current solution is in a goal state, we can check if the state = home 
@@ -51,9 +52,9 @@ public class AStarSearch implements SearchAlgorithm {
 			//we can also use the eval function, and check there if all dirt has been cleaned
 			
 			//1. find node to expand
-
+			Node pathNode = findBestNodeInFrontier();
 			//2. expand it
-
+			expandNode(pathNode, env);
 			//3. check if maxFrontierSize is not larger, if so update
 
 			//chack lab 2 to see how states/nodes are stored in hashmap
@@ -63,8 +64,24 @@ public class AStarSearch implements SearchAlgorithm {
 
 	private Node findBestNodeInFrontier(){
 		//check if null or empty for example
-		//iterate through the frontier list and find best evaluation
-		return null;
+		//iterate through the frontier list and find best evaluation (lowest value)
+		Node bestNode = null;
+		int bestNodeVal = -1;
+		Iterator<Node> fList = frontierList.iterator();
+
+		while(fList.hasNext()){
+			Node nextNode = fList.next();
+			//catch for initial value
+			if(bestNodeVal == -1){
+				bestNodeVal = nextNode.evaluation;
+				bestNode = nextNode;
+			}
+			//evaluate node
+			if(nextNode.evaluation < bestNodeVal){
+				bestNode = nextNode;
+			}
+		}
+		return bestNode;
 	}
 
 	private void expandNode(Node n, Environment env){
@@ -117,6 +134,9 @@ public class AStarSearch implements SearchAlgorithm {
 			westNode.parent = n;
 			frontierList.add(westNode);
 		}
+		
+		//cleanup state - just in case
+		s.position.x += 1;
 
 		//check if the new state already exists
 		checkIfStateExistsIfSoAddIt(n.state);
@@ -127,6 +147,7 @@ public class AStarSearch implements SearchAlgorithm {
 
 	private boolean checkIfStateExistsIfSoAddIt(State s) {
 		//check if we already have this state inside the hash map
+
 
 		//if not then add it
 
