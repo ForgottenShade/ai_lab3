@@ -38,35 +38,46 @@ public class AStarSearch implements SearchAlgorithm {
 		while (!foundSolution){
 			//keep searching
 			State s = env.currentState.clone();
-			//get position of neighbors, if not obstacles, create a node
+			Node northNode;
+			Node eastNode;
+			Node southNode;
+			Node westNode;
+			//get position of neighbors, if not obstacles, create a node, add to frontier
 			//need to do checks to determine cost of movement from start orientation
 
 			//north
 			s.position.y += 1;
 			if(!env.obstacles.contains(s.position)){
-				Node northNode = new Node();
+				northNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				frontierList.add(northNode);
 			}
 
 			//east
 			s.position.y -= 1;
 			s.position.x += 1;
 			if(!env.obstacles.contains(s.position)){
-				Node eastNode = new Node();
+				eastNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				frontierList.add(eastNode);
 			}
 
 			//south
 			s.position.x -= 1;
 			s.position.y -= 1;
 			if(!env.obstacles.contains(s.position)){
-				Node southNode = new Node();
+				southNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				frontierList.add(southNode);
 			}
 
 			//west
 			s.position.y += 1;
 			s.position.x -= 1;
 			if(!env.obstacles.contains(s.position)){
-				Node westNode = new Node();
+				westNode = new Node(s.clone(), heuristics.eval(env.currentState));
+				frontierList.add(westNode);
 			}
+
+			s.position.x += 1;
+			s = env.currentState;
 
 
 			//keep expanding nodes
