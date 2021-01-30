@@ -35,8 +35,40 @@ public class AStarSearch implements SearchAlgorithm {
 		frontierList.add(currentNode);
 
 		//find best solution
-		//while (!foundSolution){
+		while (!foundSolution){
 			//keep searching
+			State s = env.currentState.clone();
+			//get position of neighbors, if not obstacles, create a node
+			//need to do checks to determine cost of movement from start orientation
+
+			//north
+			s.position.y += 1;
+			if(!env.obstacles.contains(s.position)){
+				Node northNode = new Node();
+			}
+
+			//east
+			s.position.y -= 1;
+			s.position.x += 1;
+			if(!env.obstacles.contains(s.position)){
+				Node eastNode = new Node();
+			}
+
+			//south
+			s.position.x -= 1;
+			s.position.y -= 1;
+			if(!env.obstacles.contains(s.position)){
+				Node southNode = new Node();
+			}
+
+			//west
+			s.position.y += 1;
+			s.position.x -= 1;
+			if(!env.obstacles.contains(s.position)){
+				Node westNode = new Node();
+			}
+
+
 			//keep expanding nodes
 			// if a state is already in the hash map (duplicate) then DONT expand that node
 
@@ -51,7 +83,7 @@ public class AStarSearch implements SearchAlgorithm {
 			//3. check if maxFrontierSize is not larger, if so update
 
 			//chack lab 2 to see how states/nodes are stored in hashmap
-		//}
+		}
 		
 	}
 
