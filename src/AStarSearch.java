@@ -1,7 +1,5 @@
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
+import javax.xml.transform.stax.StAXResult;
+import java.util.*;
 
 public class AStarSearch implements SearchAlgorithm {
 
@@ -10,7 +8,9 @@ public class AStarSearch implements SearchAlgorithm {
 	public AStarSearch(Heuristics h) {
 		this.heuristics = h;
 	}
+
 	boolean foundSolution = false;
+	boolean clean = false;
 	int nodeExpansionCount = 0;
 	int maxFrontierSize = 0;
 	Node solutionNode = null;
@@ -55,11 +55,19 @@ public class AStarSearch implements SearchAlgorithm {
 			//2. expand it
 			expandNode(pathNode, env);
 			
-			if (pathNode.state.dirt.size() == 0){
+			if (pathNode.state.dirt.size() == 0 && !clean){
+				clean = true;
+				myHashMap = new HashMap<Integer, State>();
+				frontierList = new ArrayList<Node>();
+				frontierList.add(pathNode);
+			}
+
+			if (pathNode.state.position.equals(env.home) && clean){
 				solutionNode = pathNode;
 				foundSolution = true;
 			}
-			
+
+
 			//3. check if maxFrontierSize is not larger, if so update
 			
 			// //chack lab 2 to see how states/nodes are stored in hashmap
@@ -91,6 +99,7 @@ public class AStarSearch implements SearchAlgorithm {
 		//iterate through the frontier list and find best evaluation (lowest value)
 		Node bestNode = null;
 		int bestNodeVal = -1;
+		int leastDirt = 0;
 		Iterator<Node> fList = frontierList.iterator();
 
 		while(fList.hasNext()){
@@ -99,9 +108,11 @@ public class AStarSearch implements SearchAlgorithm {
 			if(bestNodeVal == -1){
 				bestNodeVal = nextNode.evaluation;
 				bestNode = nextNode;
+				leastDirt = nextNode.state.dirt.size();
 			}
 			//evaluate node
-			if(nextNode.evaluation < bestNodeVal){
+			if(nextNode.evaluation < bestNodeVal && nextNode.state.dirt.size() < leastDirt){
+				bestNodeVal = nextNode.evaluation;
 				bestNode = nextNode;
 			}
 		}
@@ -111,6 +122,7 @@ public class AStarSearch implements SearchAlgorithm {
 	private void expandNode(Node n, Environment env){
 		// ##############
 		// make clone of state
+
 		State s = n.state;
 		
 		List<Action> legalMoves = env.legalMoves(n.state);
@@ -164,6 +176,11 @@ public class AStarSearch implements SearchAlgorithm {
 				// create a new node using the adjusted state clone
 				newNode = new Node(n, sClone, Action.TURN_ON, heuristics.eval(sClone));
 			
+			}
+			else if (legalMoves.get(i) == Action.TURN_OFF){
+				s.clone().turned_on = false;
+				System.out.println("turns off.");
+				newNode = new Node(n, sClone, Action.TURN_OFF, heuristics.eval(sClone));
 			}
 			// add the new node to frontierList, if not in hashmap
 			if (!checkIfInHashMap(sClone) && newNode != null){
@@ -255,6 +272,7 @@ public class AStarSearch implements SearchAlgorithm {
 		myHashMap.put(s.hashCode(), s);
 	}
 
+
 	@Override
 	public List<Action> getPlan() {
 		// TODO Auto-generated method stub (done)
@@ -262,8 +280,8 @@ public class AStarSearch implements SearchAlgorithm {
 		System.out.println("inside getPlan()");
 		System.out.println("solutionNode: " + solutionNode);
 		List<Action> toRet = solutionNode.getPlan();
+		toRet.add(Action.TURN_OFF);
 
-		
 
 		if (toRet != null && !toRet.isEmpty()){
 			return toRet;
