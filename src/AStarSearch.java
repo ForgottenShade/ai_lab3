@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class AStarSearch implements SearchAlgorithm {
 
 	private Heuristics heuristics;
-	private HashMap<Integer, State > myHashMap;
+	private HashMap<Integer, State > myHashMap = new HashMap<Integer, State>();
 	public AStarSearch(Heuristics h) {
 		this.heuristics = h;
 	}
@@ -32,13 +32,9 @@ public class AStarSearch implements SearchAlgorithm {
 	
 		//be careful here because we can't use max value at other places?
 		Node currentNode = new Node(env.getCurrentState(), Integer.MAX_VALUE);
-		frontierList.add(currentNode);
-
+		expandNode(currentNode, env);
 		//find best solution
 		while (!foundSolution){
-			
-			// expandNode(currentNode, env);
-
 			// findBestNodeInFrontier(frontierList);
 			
 			// // ##############
@@ -113,24 +109,18 @@ public class AStarSearch implements SearchAlgorithm {
 		List<Action> legalMoves = env.legalMoves(n.state);
 		
 		for (int i = 0; i < legalMoves.size(); i++){
-			// reset clone to current state
+			// create and reset clone to current state
 			State sClone = s.clone();
 			Node newNode = null;
-
+			//System.out.println("current legal move : " + legalMoves.get(i));
 
 			if (legalMoves.get(i) == Action.GO){
 				// get next location 
 				sClone.position = sClone.facingPosition();
 
-				// clone the next state with the correct coordinates
+				// create a new node using the adjusted state clone
 				newNode = new Node(n, sClone, Action.GO, heuristics.eval(sClone));
-			
-				// add node to frontierList, if not in hashmap
-				if (!checkStateHashAndAdd(sClone)){
-					frontierList.add(newNode);
-				}
 			}
-
 			else if (legalMoves.get(i) == Action.TURN_LEFT){
 				if (sClone.orientation == 0){
 					sClone.orientation = 3;
@@ -139,13 +129,9 @@ public class AStarSearch implements SearchAlgorithm {
 					sClone.orientation -= 1;
 				}
 
+				// create a new node using the adjusted state clone
 				newNode = new Node(n, sClone, Action.TURN_LEFT, heuristics.eval(sClone));
-				
-				if (!checkStateHashAndAdd(sClone)){
-					frontierList.add(newNode);
-				}	
 			}
-
 			else if (legalMoves.get(i) == Action.TURN_RIGHT){
 				if (sClone.orientation == 3){
 					sClone.orientation = 0;
@@ -154,31 +140,38 @@ public class AStarSearch implements SearchAlgorithm {
 					sClone.orientation += 1;
 				}
 
+				// create a new node using the adjusted state clone
 				newNode = new Node(n, sClone, Action.TURN_RIGHT, heuristics.eval(sClone));
-				
-				if (!checkStateHashAndAdd(sClone)){
-					frontierList.add(newNode);
-				}
 			}
-
 			else if (legalMoves.get(i) == Action.SUCK){
 				sClone.dirt.remove(sClone.position);
 
+				// create a new node using the adjusted state clone
 				newNode = new Node(n, sClone, Action.SUCK, heuristics.eval(sClone));
 				
-			}	
+			}
+			else if (legalMoves.get(i) == Action.TURN_ON){
+				// Should only happen at the first step
+				sClone.turned_on = true;
+
+				// create a new node using the adjusted state clone
+				newNode = new Node(n, sClone, Action.TURN_ON, heuristics.eval(sClone));
 			
-			if (!checkStateHashAndAdd(sClone) && newNode != null){
+			}
+			// add the new node to frontierList, if not in hashmap
+			if (!checkIfInHashMap(sClone) && newNode != null){
+				addToHashMap(sClone);
 				frontierList.add(newNode);
+				nodeExpansionCount++;
 			}
 			else if (newNode == null){
 				System.out.println("expandNode : newNode is null");
 			}
-			else if (checkStateHashAndAdd(sClone)){
+			else if (checkIfInHashMap(sClone)){
 				System.out.println("expandNode : state is already in hashmap");
 			}
 		}
-		//update the frontier, both remove current node and add the new ones
+		// remove the expanded node from the frontier list
 		frontierList.remove(n);
 		// ###############
 
@@ -242,16 +235,16 @@ public class AStarSearch implements SearchAlgorithm {
 		// // #################
 	}
 
-	private boolean checkStateHashAndAdd(State s) {
+	private boolean checkIfInHashMap(State s) {
 		//check if we already have this state inside the hash map
-
 		if (!myHashMap.containsKey(s.hashCode())){
-			//if not then add it
-			myHashMap.put(s.hashCode(), s);
-
 			return false;
 		}
 		return true;
+	}
+
+	private void addToHashMap(State s){
+		myHashMap.put(s.hashCode(), s);
 	}
 
 	@Override
