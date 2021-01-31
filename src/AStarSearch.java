@@ -27,7 +27,6 @@ public class AStarSearch implements SearchAlgorithm {
 		foundSolution = false;
 		int nodeExpansionCount = 0;
 		int maxFrontierSize = 0;
-		Node solutionNode = null;
 		frontierList = new ArrayList<Node>();
 	
 		//be careful here because we can't use max value at other places?
@@ -69,6 +68,7 @@ public class AStarSearch implements SearchAlgorithm {
 			// // #################
 			// TODO: If we've found a pathnode that has no dirt left -> solutionNode is found
 		}
+		
 	}
 
 	// private Node findBestNodeInFrontier(ArrayList<Node> frontierList){
