@@ -55,12 +55,19 @@ public class AStarSearch implements SearchAlgorithm {
 			Node pathNode = findBestNodeInFrontier();
 			//2. expand it
 			expandNode(pathNode, env);
+			
+			if (pathNode.state.dirt.size() == 0){
+				solutionNode = pathNode;
+				foundSolution = true;
+			}
+			
 			//3. check if maxFrontierSize is not larger, if so update
-
+			
 			// //chack lab 2 to see how states/nodes are stored in hashmap
 
 			// //  #### Probably crap ####
 			// // #################
+			// TODO: If we've found a pathnode that has no dirt left -> solutionNode is found
 		}
 	}
 
@@ -172,6 +179,7 @@ public class AStarSearch implements SearchAlgorithm {
 			}
 		}
 		// remove the expanded node from the frontier list
+		
 		frontierList.remove(n);
 		// ###############
 
@@ -251,7 +259,11 @@ public class AStarSearch implements SearchAlgorithm {
 	public List<Action> getPlan() {
 		// TODO Auto-generated method stub (done)
 		// if we are in a solution node we just need to return thatnode.getPlan()
+		System.out.println("inside getPlan()");
+		System.out.println("solutionNode: " + solutionNode);
 		List<Action> toRet = solutionNode.getPlan();
+
+		
 
 		if (toRet != null && !toRet.isEmpty()){
 			return toRet;
